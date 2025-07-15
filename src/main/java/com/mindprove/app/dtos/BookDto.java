@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 public class BookDto {
 	
 	private Long bookId;
-	
 	@ValidName
 	private String bookName;
 	@ValidTitle
@@ -33,6 +32,7 @@ public class BookDto {
 	private Integer publicationYear;
 	@ValidPrice
 	private Double price;
+	
 	private Long publisherId;
 
 }

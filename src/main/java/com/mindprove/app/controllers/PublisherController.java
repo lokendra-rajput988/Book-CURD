@@ -26,7 +26,7 @@ import com.mindprove.app.util.constant.Constant;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(Constant.BOOK_URL+"/publishers")
+@RequestMapping("/api/publisher/")
 public class PublisherController {
 	
 	Logger log=LoggerFactory.getLogger(PublisherController.class);
@@ -34,25 +34,25 @@ public class PublisherController {
 	@Autowired
 	private IPublisherService publisherService;
 	
-	@PostMapping("/createPublisher")
+	@PostMapping("createPublisher")
 	public ResponseEntity<ResponseDto> createPublisher(@Valid @RequestBody PublisherDto publisherDto) {
 		log.info("Post API method call : {}");
-		return ResponseEntity.ok().body(publisherService.createPublisher(publisherDto));
+		return ResponseEntity.ok().body(new ResponseDto("Success",publisherService.createPublisher(publisherDto),HttpStatus.CREATED));
 	}
 	
-	@PutMapping("/updatePublisherById/{publisherId}")
+	@PutMapping("updatePublisherById/{publisherId}")
 	public ResponseEntity<ResponseDto> updatePublisherById(@Valid @RequestBody PublisherDto publisherDto,@PathVariable("publisherId") Long publisherId){
 		log.info("Put API method call : {}");
-		return ResponseEntity.ok().body(publisherService.updatePublisher(publisherDto,publisherId));
+		return ResponseEntity.ok().body(new ResponseDto("Success",publisherService.updatePublisher(publisherDto,publisherId),HttpStatus.OK));
 	}
 	
-	@GetMapping("/getPublisherById/{publisherId}")
+	@GetMapping("getPublisherById/{publisherId}")
 	public ResponseEntity<ResponseDto> getPublisherById(@PathVariable("publisherId") Long publisherId){
 		log.info("Get API method call : {}");
-		return ResponseEntity.ok().body(publisherService.getPublisherById(publisherId));
+		return ResponseEntity.ok().body(new ResponseDto("Success",publisherService.getPublisherById(publisherId),HttpStatus.OK));
 	}
 	
-	@GetMapping("/getAllPublisher")
+	@GetMapping("getAllPublisher")
 	public ResponseEntity<ResponseDto> getAllPublishers(
 			@RequestParam(name="pageNumber",defaultValue = "0")int pageNumber,
 			@RequestParam(name="pageSize",defaultValue = "pageSize")int pageSize,
@@ -63,9 +63,9 @@ public class PublisherController {
 		return ResponseEntity.ok().body(publisherService.getAllPublisher(pageNumber,pageSize,sortBy,ascending));
 	}
 	
-	@DeleteMapping("/deletePublisherById/{publisherId}")
+	@DeleteMapping("deletePublisherById/{publisherId}")
 	public ResponseEntity<ResponseDto> deletePublisherById(@PathVariable("publisherId") Long publisherId){
 		log.info("Delete API method call : {}");
-		return ResponseEntity.ok().body(publisherService.deletePublisherById(publisherId));
+		return ResponseEntity.ok().body(new ResponseDto("Success",publisherService.deletePublisherById(publisherId),HttpStatus.OK));
 	}
 }

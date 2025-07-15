@@ -22,7 +22,7 @@ import com.mindprove.app.services.IBookServices;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/book")
+@RequestMapping("/api/book/")
 public class BookController {
 	
 	
@@ -31,21 +31,21 @@ public class BookController {
 	@Autowired
 	private IBookServices bookService;
 	
-	@PostMapping("/")
+	@PostMapping("createBook")
 	public ResponseEntity<ResponseDto> createBook(@Valid @RequestBody BookDto bookDto ){
 		log.info("Post API called : {}");
 		return  ResponseEntity.ok().body(bookService.createBook(bookDto));
 		
 	}
 	
-	@GetMapping("/{bookId}")
+	@GetMapping("getBookById/{bookId}")
 	public ResponseEntity<ResponseDto> getBookById(@PathVariable("bookId") Long bookId){
 		log.info("Get API called : {}");
 		return  ResponseEntity.ok().body(bookService.getBookById(bookId));
 		
 	}
 	
-	@GetMapping("/")
+	@GetMapping("getAllBooks/")
 	public ResponseEntity<PagedResponse<BookDto>> getAllBooks(@RequestParam(name = "pageNumber",defaultValue = "0")Integer pageNumber,
 			@RequestParam(name="pageSize",defaultValue = "5")Integer pageSize,
 			@RequestParam(name="title",defaultValue = "title")String sortBy,
@@ -55,20 +55,20 @@ public class BookController {
 		return  ResponseEntity.ok().body(bookService.getAllBooks(pageNumber, pageSize, sortBy,ascending));
 	}
 	
-	@GetMapping("/search")
+	@GetMapping("search/")
 	public ResponseEntity<ResponseDto> searchBooks(@RequestParam(name="keyword") String keyword){
 		log.info("Get API called : {}");
 		return ResponseEntity.ok().body(bookService.searchBookByTitleOrAuthor(keyword,keyword));
 	}
 	
-	@PutMapping("/{bookId}")
+	@PutMapping("updateBookById/{bookId}")
 	public ResponseEntity<ResponseDto> updateBookById(@PathVariable("bookId") Long bookId,@Valid @RequestBody BookDto bookDto ){
 		log.info("Put API called : {}");
 		return  ResponseEntity.ok().body(bookService.updateBook(bookDto, bookId));
 		
 	}
 	
-	@DeleteMapping("/{bookId}")
+	@DeleteMapping("deleteBookById/{bookId}")
 	public ResponseEntity<ResponseDto> deleteBookById(@PathVariable("bookId") Long bookId ){
 		log.info("Delete API called : {}");
 		return  ResponseEntity.ok().body(bookService.deleteBookById(bookId));

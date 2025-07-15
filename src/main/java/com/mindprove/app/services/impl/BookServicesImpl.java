@@ -3,9 +3,6 @@ package com.mindprove.app.services.impl;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,76 +15,66 @@ import com.mindprove.app.dtos.BookDto;
 import com.mindprove.app.entities.BookDb;
 import com.mindprove.app.entities.PublisherDb;
 import com.mindprove.app.exceptions.ResourceNotFoundException;
+import com.mindprove.app.mapper.BookMapper;
 import com.mindprove.app.repositories.BookRepository;
 import com.mindprove.app.repositories.PublisherRepository;
 import com.mindprove.app.response.PagedResponse;
 import com.mindprove.app.response.ResponseDto;
 import com.mindprove.app.services.IBookServices;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class BookServicesImpl implements IBookServices {
-	
 	@Autowired
 	private BookRepository bookRepository;
-	
 	@Autowired
 	private PublisherRepository publisherRepository;
-	
 	@Autowired
-	private ModelMapper mapper;
+	private BookMapper bookMapper;
 	
-	Logger log=LoggerFactory.getLogger(BookServicesImpl.class);
 	
-	private BookDb dtoToEntity(BookDto bookDto) {
-		return mapper.map(bookDto, BookDb.class);
-	}
-	
-	private BookDto entityToDto(BookDb bookDb) {
-		return mapper.map(bookDb, BookDto.class);
-	}
-
 	@Override
 	public ResponseDto createBook(BookDto bookDto) {
 		log.info("create book method called");
-		PublisherDb publisherDb = publisherRepository.findById(bookDto.getPublisherId()).orElseThrow(()-> new ResourceNotFoundException("ID is not found"));
-		BookDb bookDb=dtoToEntity(bookDto);
+		PublisherDb publisherDb = publisherRepository.findById(bookDto.getPublisherId()).orElseThrow(()-> new ResourceNotFoundException("Publisher id "+bookDto.getPublisherId()+" is not found."));
+		BookDb bookDb=bookMapper.toEntity(bookDto);
 		bookDb.setPublisher(publisherDb);
-		BookDb saveBookDb = bookRepository.save(bookDb);
-		log.info("save book inside the database : {}");
-		return new ResponseDto("success",entityToDto(saveBookDb), HttpStatus.CREATED);
+		return new ResponseDto("success",bookMapper.toDTO(bookRepository.save(bookDb)), HttpStatus.CREATED);
 	}
 
 	@Override
 	public ResponseDto updateBook(BookDto bookDto, Long bookId) {
 		log.info("update book method called : {}");
 		//get BookDb by id
-		BookDb bookDb =  bookRepository.findById(bookId).orElseThrow(()-> new ResourceNotFoundException("Id not found"));
+		BookDb bookDb =  bookRepository.findById(bookId).orElseThrow(()-> new ResourceNotFoundException("Book id "+bookId+" is not found."));
 		//get PublisherDb by id
-		PublisherDb publisherDb = publisherRepository.findById(bookDto.getPublisherId()).orElseThrow(()-> new ResourceNotFoundException("ID is not found"));
+		PublisherDb publisherDb = publisherRepository.findById(bookDto.getPublisherId()).orElseThrow(()-> new ResourceNotFoundException("Publisher id "+bookDto.getPublisherId()+" is not found."));
 		bookDb.setBookName(bookDto.getBookName());
 		bookDb.setAuthor(bookDto.getAuthor());
 		bookDb.setTitle(bookDto.getTitle());
 		bookDb.setPrice(bookDto.getPrice());
 		bookDb.setPublicationYear(bookDto.getPublicationYear());
 		bookDb.setPublisher(publisherDb);
-		BookDb updateBookdb = bookRepository.save(bookDb);
-		log.info("updated book inside the database : {}");
-		return new ResponseDto("success",entityToDto(updateBookdb), HttpStatus.OK);
+		return new ResponseDto("success",bookMapper.toDTO(bookRepository.save(bookDb)), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseDto deleteBookById(Long bookId) {
 		log.info("delete book method called : {}");
-		BookDb bookDb =  bookRepository.findById(bookId).orElseThrow(()-> new ResourceNotFoundException("ID is not found"));
+		BookDb bookDb =  bookRepository.findById(bookId).orElseThrow(()-> new ResourceNotFoundException("Book id "+bookId+" is not found."));
 		bookRepository.delete(bookDb);
-		return new ResponseDto("success",null,HttpStatus.OK);
+		return new ResponseDto("success",true,HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseDto getBookById(Long bookId) {
-		log.info("get book method called");
-		BookDb bookDb =  bookRepository.findById(bookId).orElseThrow(()-> new ResourceNotFoundException("ID is not found"));
-		return new ResponseDto("success",entityToDto(bookDb), HttpStatus.OK);
+		log.info("get book method called : {}");
+		BookDb bookDb =  bookRepository.findById(bookId).orElseThrow(()-> new ResourceNotFoundException("Book id "+bookId+" is not found."));
+		return new ResponseDto("success",bookMapper.toDTO(bookDb), HttpStatus.OK);
 	}
 
 	@Override
